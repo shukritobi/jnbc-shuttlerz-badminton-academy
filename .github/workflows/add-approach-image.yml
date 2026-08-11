@@ -1,0 +1,23 @@
+name: Add JNBC approach image
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/add-approach-image.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Download uploaded image from chat mirror
+        run: |
+          python - <<'PY'
+          print('placeholder')
+          PY
