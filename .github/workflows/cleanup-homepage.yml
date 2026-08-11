@@ -1,0 +1,59 @@
+name: Clean up homepage sections
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/cleanup-homepage.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Update homepage
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          s = p.read_text()
+
+          # Use the uploaded local hero video filename.
+          s = s.replace('assets/videos/jnbc-hero.mp4', 'assets/videos/jnbc-vid-1.mp4')
+
+          # Remove Updates nav link.
+          s = s.replace('<a href="#updates">Updates</a>', '')
+
+          # Remove the temporary core-team status strip.
+          s = re.sub(r'<div class="core-intro"><strong>6 Core Team Members</strong><span>.*?</span></div>', '', s, count=1, flags=re.S)
+
+          # Remove the full Academy Announcements section.
+          s = re.sub(r'<section class="section alt" id="updates">.*?</section>\n?', '', s, count=1, flags=re.S)
+
+          # Update digital-tools intro so it no longer refers to announcements.
+          s = s.replace(
+              'The website is structured as a digital front desk, connecting player registration, fee payment, announcements and future membership tracking.',
+              'The website is structured as a digital front desk, connecting player registration, fee payment and future membership tracking.'
+          )
+
+          p.write_text(s)
+          PY
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Remove temporary team strip and announcements section"
+          git push origin main
