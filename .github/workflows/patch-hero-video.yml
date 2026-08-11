@@ -1,0 +1,44 @@
+name: Patch hero to use local video
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/patch-hero-video.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Replace hero image with background video
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = '<section class="hero"><img class="hero-bg" src="https://images.unsplash.com/photo-1780233689566-55045608bd17?auto=format&fit=crop&w=1900&q=88" alt="Indoor badminton court">'
+          new = '<section class="hero"><video class="hero-bg" autoplay muted loop playsinline preload="metadata" poster="https://images.unsplash.com/photo-1780233689566-55045608bd17?auto=format&fit=crop&w=1900&q=88" aria-hidden="true"><source src="assets/videos/jnbc-hero.mp4" type="video/mp4"></video>'
+          if old not in s:
+              print('Hero already patched or source markup changed.')
+          else:
+              p.write_text(s.replace(old, new, 1))
+              print('Hero patched.')
+          PY
+      - name: Commit patch
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Use local MP4 as hero background"
+          git push origin main
