@@ -1,0 +1,67 @@
+name: Fix Denesh and visual QA
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/fix-denesh-and-qa.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch-and-qa:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Patch Denesh coach card and training image alt text
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = '<article class="coach-card"><div class="coach-photo missing"><div class="missing-mark"><b>D</b><span>Denesh photo coming soon</span></div></div><div class="coach-info"><span class="role">JNBC Coach • Personal & Group Trainees Coordination Training Facilitator</span><h3>Denesh</h3>'
+          new = '<article class="coach-card"><div class="coach-photo"><img src="assets/images/coaches/denesh.png" alt="Denesh" onerror="this.style.display=\'none\';this.parentElement.classList.add(\'missing\');this.parentElement.innerHTML=\'<div class=missing-mark><b>D</b><span>Photo coming soon</span></div>\'"></div><div class="coach-info"><span class="role">JNBC Coach • Personal & Group Trainees Coordination Training Facilitator</span><h3>Denesh</h3>'
+          if old not in s:
+              raise SystemExit('Denesh placeholder block not found')
+          s = s.replace(old, new, 1)
+          s = s.replace('alt="Badminton court"', 'alt="Coach Justin guiding a JNBC badminton trainee"', 1)
+          p.write_text(s)
+          PY
+
+      - name: Commit site fix
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Show Denesh coach photo" || true
+          git push origin main
+
+      - name: Start local site
+        run: |
+          python3 -m http.server 8000 >/tmp/jnbc-http.log 2>&1 &
+          sleep 2
+
+      - name: Install Playwright Chromium
+        run: |
+          npx -y playwright@1.54.2 install --with-deps chromium
+
+      - name: Capture desktop screenshot
+        run: |
+          npx -y playwright@1.54.2 screenshot --browser=chromium --viewport-size="1440,1000" --full-page --wait-for-timeout=3000 http://127.0.0.1:8000/ jnbc-desktop.png
+
+      - name: Capture mobile screenshot
+        run: |
+          npx -y playwright@1.54.2 screenshot --browser=chromium --device="iPhone 13" --full-page --wait-for-timeout=3000 http://127.0.0.1:8000/ jnbc-mobile.png
+
+      - name: Upload QA screenshots
+        uses: actions/upload-artifact@v4
+        with:
+          name: jnbc-ui-qa
+          path: |
+            jnbc-desktop.png
+            jnbc-mobile.png
+          retention-days: 3
