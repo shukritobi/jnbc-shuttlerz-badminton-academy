@@ -1,4 +1,4 @@
-name: JNBC visual QA
+name: Polish JNBC core team layout
 
 on:
   push:
@@ -7,40 +7,35 @@ on:
       - '.github/workflows/fix-denesh-and-qa.yml'
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
-  qa:
+  patch:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           ref: main
-
-      - name: Start local site
+      - name: Center final coach card on desktop
         run: |
-          python3 -m http.server 8000 >/tmp/jnbc-http.log 2>&1 &
-          sleep 2
-
-      - name: Install Playwright Chromium
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+          old='<article class="coach-card"><div class="coach-photo"><img src="assets/images/coaches/denesh.png"'
+          new='<article class="coach-card denesh-card"><div class="coach-photo"><img src="assets/images/coaches/denesh.png"'
+          if old in s:
+              s=s.replace(old,new,1)
+          css='@media(min-width:1051px){.denesh-card{grid-column:2}}\n'
+          marker='@media(max-width:1050px)'
+          if css.strip() not in s:
+              s=s.replace(marker,css+marker,1)
+          p.write_text(s)
+          PY
+      - name: Commit polish
         run: |
-          npx -y playwright@1.54.2 install --with-deps chromium
-
-      - name: Capture desktop screenshot
-        run: |
-          npx -y playwright@1.54.2 screenshot --browser=chromium --viewport-size="1440,1000" --full-page --wait-for-timeout=3500 http://127.0.0.1:8000/ jnbc-desktop.png
-
-      - name: Capture mobile screenshot
-        run: |
-          npx -y playwright@1.54.2 screenshot --browser=chromium --viewport-size="390,844" --full-page --wait-for-timeout=3500 http://127.0.0.1:8000/ jnbc-mobile.png
-
-      - name: Upload QA screenshots
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: jnbc-ui-qa
-          path: |
-            jnbc-desktop.png
-            jnbc-mobile.png
-          if-no-files-found: warn
-          retention-days: 3
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Center Denesh card on desktop" || true
+          git push origin main
