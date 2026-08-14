@@ -1,0 +1,88 @@
+name: Add Drive video gallery
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/add-drive-video-gallery.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Add lazy Google Drive training gallery
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+
+          marker = '<!-- JNBC_VIDEO_GALLERY -->'
+          if marker not in s:
+              css = r'''
+/* JNBC lightweight Drive video gallery */
+.video-showcase{background:#080c13}
+.video-filters{display:flex;gap:9px;flex-wrap:wrap;margin:-18px 0 28px}
+.video-filter{border:1px solid var(--line);background:#101621;color:#c7ced9;border-radius:999px;padding:9px 13px;font-weight:800;font-size:.7rem;text-transform:uppercase;letter-spacing:.04em;cursor:pointer}
+.video-filter.active,.video-filter:hover{background:#294aff;border-color:#294aff;color:#fff}
+.video-gallery{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.training-video{position:relative;min-height:285px;border:1px solid var(--line);border-radius:19px;overflow:hidden;background:#111823;cursor:pointer;isolation:isolate}
+.training-video[hidden]{display:none}
+.training-video img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s ease;z-index:-2}
+.training-video:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(3,6,11,.96) 3%,rgba(4,8,14,.45) 55%,rgba(4,8,14,.12));z-index:-1}
+.training-video:hover img{transform:scale(1.035)}
+.video-play{position:absolute;top:18px;right:18px;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--red);color:#fff;font-size:1.15rem;box-shadow:0 10px 26px rgba(237,28,46,.28)}
+.video-copy{position:absolute;left:21px;right:21px;bottom:20px}
+.video-copy small{color:#8da1ff;font-weight:900;letter-spacing:.1em;text-transform:uppercase;font-size:.65rem}
+.video-copy h3{font-size:1.8rem;margin:8px 0 5px}.video-copy p{margin:0;color:#b7c0ce;font-size:.75rem;line-height:1.45}
+.video-note{margin-top:17px;color:#7f8998;font-size:.72rem;line-height:1.55}
+.video-modal{position:fixed;inset:0;z-index:1000;display:none;place-items:center;padding:24px;background:rgba(2,5,9,.88);backdrop-filter:blur(12px)}
+.video-modal.open{display:grid}.video-modal-box{width:min(1040px,100%);background:#080d15;border:1px solid rgba(255,255,255,.14);border-radius:22px;overflow:hidden;box-shadow:0 35px 100px rgba(0,0,0,.6)}
+.video-modal-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:17px 20px;border-bottom:1px solid var(--line)}
+.video-modal-head strong{font:800 1.25rem 'Barlow Condensed';text-transform:uppercase}.video-close{border:0;background:#161d29;color:#fff;width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:1.1rem}
+.video-frame{aspect-ratio:16/9;background:#000}.video-frame iframe{width:100%;height:100%;border:0;display:block}
+@media(max-width:900px){.video-gallery{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.video-gallery{grid-template-columns:1fr}.training-video{min-height:250px}.video-modal{padding:10px}.video-modal-head{padding:13px 14px}}
+'''
+              s = s.replace('</style>', css + '\n</style>')
+
+              s = s.replace('<a href="#training">Training</a>', '<a href="#training">Training</a><a href="#videos">Videos</a>')
+
+              section = r'''<!-- JNBC_VIDEO_GALLERY -->
+<section class="section video-showcase" id="videos"><div class="wrap"><div class="section-head"><div><span class="kicker">Training in action</span><h2>See how JNBC<br>builds players.</h2></div><p>Real academy training footage covering technique, footwork, multi-shuttle drills, conditioning and match play. Videos are hosted on Google Drive and only load after you choose to watch.</p></div>
+<div class="video-filters" aria-label="Filter training videos"><button class="video-filter active" data-filter="all">All</button><button class="video-filter" data-filter="technique">Technique</button><button class="video-filter" data-filter="footwork">Footwork</button><button class="video-filter" data-filter="multishuttle">Multi-Shuttle</button><button class="video-filter" data-filter="fitness">Fitness</button><button class="video-filter" data-filter="match">Match Play</button></div>
+<div class="video-gallery">
+<article class="training-video" tabindex="0" role="button" data-category="technique" data-video-id="1xNjIescjNjdE1h7fCRRfwO2DPegkKm2m" data-title="Junior Net Lift Technique"><img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1xNjIescjNjdE1h7fCRRfwO2DPegkKm2m&sz=w1000" alt="Junior net lift badminton coaching"><span class="video-play">▶</span><div class="video-copy"><small>Technique</small><h3>Junior Net Lift Technique</h3><p>Short, focused technical coaching for developing correct contact and control.</p></div></article>
+<article class="training-video" tabindex="0" role="button" data-category="footwork" data-video-id="1ES9PkjMy_m9jHY4zekgvXa5xQZ4eYL2L" data-title="Baseline Footwork"><img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1ES9PkjMy_m9jHY4zekgvXa5xQZ4eYL2L&sz=w1000" alt="Badminton baseline footwork training"><span class="video-play">▶</span><div class="video-copy"><small>Footwork</small><h3>Baseline Footwork</h3><p>Movement training designed to build balance, recovery and efficient court coverage.</p></div></article>
+<article class="training-video" tabindex="0" role="button" data-category="footwork" data-video-id="1Q2RlF5H_U8HznDEecvNPuqT8MvfTCY5k" data-title="Junior Agility Drill"><img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1Q2RlF5H_U8HznDEecvNPuqT8MvfTCY5k&sz=w1000" alt="Junior badminton agility drill"><span class="video-play">▶</span><div class="video-copy"><small>Footwork & Agility</small><h3>Junior Agility Drill</h3><p>Fast movement work that develops coordination and confident court movement.</p></div></article>
+<article class="training-video" tabindex="0" role="button" data-category="multishuttle" data-video-id="1yMCXqPcveOBs_OAvUmspceZ46Dkekkdq" data-title="Multi-Shuttle Defence"><img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1yMCXqPcveOBs_OAvUmspceZ46Dkekkdq&sz=w1000" alt="Multi-shuttle badminton defence drill"><span class="video-play">▶</span><div class="video-copy"><small>Multi-Shuttle</small><h3>Multi-Shuttle Defence</h3><p>Repeated defensive patterns for reactions, consistency and movement under pressure.</p></div></article>
+<article class="training-video" tabindex="0" role="button" data-category="fitness" data-video-id="1BRJbp1131_7COTFW91ggxmdseLutWcdv" data-title="Junior Group Warm-Up"><img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1BRJbp1131_7COTFW91ggxmdseLutWcdv&sz=w1000" alt="Junior badminton group warm up"><span class="video-play">▶</span><div class="video-copy"><small>Fitness & Conditioning</small><h3>Junior Group Warm-Up</h3><p>Fun physical preparation that develops energy, coordination and group engagement.</p></div></article>
+<article class="training-video" tabindex="0" role="button" data-category="match" data-video-id="1D-XnEBucsV90Dmmf4t7zVwWTcFr9tKrN" data-title="Doubles Match Play"><img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=1D-XnEBucsV90Dmmf4t7zVwWTcFr9tKrN&sz=w1000" alt="Badminton doubles match play"><span class="video-play">▶</span><div class="video-copy"><small>Match Play</small><h3>Doubles Match Play</h3><p>Putting movement, shot selection and tactical awareness into a live rally environment.</p></div></article>
+</div><p class="video-note">Lightweight by design: only preview images load with the page. The Google Drive video player is created only when a visitor clicks a video.</p></div></section>
+'''
+              s = s.replace('<section class="section alt" id="testimonials">', section + '\n<section class="section alt" id="testimonials">')
+
+              modal = r'''<div class="video-modal" id="videoModal" aria-hidden="true"><div class="video-modal-box"><div class="video-modal-head"><strong id="videoModalTitle">JNBC Training Video</strong><button class="video-close" id="videoClose" type="button" aria-label="Close video">✕</button></div><div class="video-frame" id="videoFrame"></div></div></div>'''
+              s = s.replace('<div class="mobile-cta">', modal + '\n<div class="mobile-cta">')
+
+              js = r'''<script>
+(()=>{const modal=document.getElementById('videoModal'),frame=document.getElementById('videoFrame'),title=document.getElementById('videoModalTitle');if(!modal)return;const openVideo=card=>{const id=card.dataset.videoId;title.textContent=card.dataset.title||'JNBC Training Video';frame.innerHTML=`<iframe src="https://drive.google.com/file/d/${id}/preview" allow="autoplay; fullscreen" allowfullscreen loading="eager" referrerpolicy="strict-origin-when-cross-origin"></iframe>`;modal.classList.add('open');modal.setAttribute('aria-hidden','false');document.body.style.overflow='hidden'};const closeVideo=()=>{modal.classList.remove('open');modal.setAttribute('aria-hidden','true');frame.innerHTML='';document.body.style.overflow=''};document.querySelectorAll('.training-video').forEach(card=>{card.addEventListener('click',()=>openVideo(card));card.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();openVideo(card)}})});document.getElementById('videoClose').onclick=closeVideo;modal.addEventListener('click',e=>{if(e.target===modal)closeVideo()});document.addEventListener('keydown',e=>{if(e.key==='Escape'&&modal.classList.contains('open'))closeVideo()});document.querySelectorAll('.video-filter').forEach(btn=>btn.addEventListener('click',()=>{document.querySelectorAll('.video-filter').forEach(b=>b.classList.remove('active'));btn.classList.add('active');const f=btn.dataset.filter;document.querySelectorAll('.training-video').forEach(card=>card.hidden=f!=='all'&&card.dataset.category!==f)}));})();
+</script>'''
+              s = s.replace('</body>', js + '\n</body>')
+
+          p.write_text(s)
+          PY
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then exit 0; fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add lightweight Google Drive training video gallery"
+          git push origin main
