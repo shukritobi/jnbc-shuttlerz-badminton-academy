@@ -1,0 +1,38 @@
+name: Generate JNBC video posters
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/generate-video-posters.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  posters:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Install ffmpeg
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y ffmpeg
+      - name: Generate lightweight WebP posters
+        run: |
+          mkdir -p assets/images/video-posters
+          for video in assets/videos/training/*.mp4; do
+            [ -f "$video" ] || continue
+            base="$(basename "$video" .mp4)"
+            ffmpeg -hide_banner -loglevel error -y -ss 0.8 -i "$video" -frames:v 1 -vf "scale='min(720,iw)':-2" -c:v libwebp -quality 72 "assets/images/video-posters/${base}.webp"
+          done
+      - name: Commit posters
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/images/video-posters
+          git commit -m "Generate lightweight JNBC video posters" || exit 0
+          git push origin main
