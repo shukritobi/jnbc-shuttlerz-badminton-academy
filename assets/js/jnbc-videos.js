@@ -10,44 +10,51 @@
   .training-video{position:relative;min-height:285px;border:1px solid var(--line);border-radius:19px;overflow:hidden;background:#111823;cursor:pointer;isolation:isolate}
   .training-video[hidden]{display:none}
   .training-video img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .35s ease;z-index:-2}
-  .training-video:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(3,6,11,.96) 3%,rgba(4,8,14,.45) 55%,rgba(4,8,14,.12));z-index:-1}
+  .training-video:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(3,6,11,.96) 3%,rgba(4,8,14,.48) 58%,rgba(4,8,14,.12));z-index:-1}
   .training-video:hover img{transform:scale(1.035)}
   .video-play{position:absolute;top:18px;right:18px;width:52px;height:52px;border-radius:50%;display:grid;place-items:center;background:var(--red);color:#fff;font-size:1.15rem;box-shadow:0 10px 26px rgba(237,28,46,.28)}
   .video-copy{position:absolute;left:21px;right:21px;bottom:20px}
   .video-copy small{color:#8da1ff;font-weight:900;letter-spacing:.1em;text-transform:uppercase;font-size:.65rem}
-  .video-copy h3{font-size:1.8rem;margin:8px 0 5px}
+  .video-copy h3{font-size:1.65rem;margin:8px 0 5px;line-height:1.05}
   .video-copy p{margin:0;color:#b7c0ce;font-size:.75rem;line-height:1.45}
   .video-note{margin-top:17px;color:#7f8998;font-size:.72rem;line-height:1.55}
-  .video-modal{position:fixed;inset:0;z-index:1000;display:none;place-items:center;padding:24px;background:rgba(2,5,9,.88);backdrop-filter:blur(12px)}
+  .video-modal{position:fixed;inset:0;z-index:1000;display:none;place-items:center;padding:24px;background:rgba(2,5,9,.9);backdrop-filter:blur(12px)}
   .video-modal.open{display:grid}
   .video-modal-box{width:min(1040px,100%);background:#080d15;border:1px solid rgba(255,255,255,.14);border-radius:22px;overflow:hidden;box-shadow:0 35px 100px rgba(0,0,0,.6)}
   .video-modal-head{display:flex;align-items:center;justify-content:space-between;gap:20px;padding:17px 20px;border-bottom:1px solid var(--line)}
   .video-modal-head strong{font:800 1.25rem 'Barlow Condensed';text-transform:uppercase}
   .video-close{border:0;background:#161d29;color:#fff;width:38px;height:38px;border-radius:10px;cursor:pointer;font-size:1.1rem}
-  .video-frame{aspect-ratio:16/9;background:#000}
-  .video-frame iframe{width:100%;height:100%;border:0;display:block}
+  .video-frame{aspect-ratio:16/9;background:#000;display:grid;place-items:center}
+  .video-frame video{width:100%;height:100%;display:block;background:#000;object-fit:contain}
   @media(max-width:900px){.video-gallery{grid-template-columns:1fr 1fr}}
-  @media(max-width:600px){.video-gallery{grid-template-columns:1fr}.training-video{min-height:250px}.video-modal{padding:10px}.video-modal-head{padding:13px 14px}}
+  @media(max-width:600px){.video-gallery{grid-template-columns:1fr}.training-video{min-height:250px}.video-modal{padding:10px}.video-modal-head{padding:13px 14px}.video-copy h3{font-size:1.55rem}}
   `;
   const style = document.createElement('style');
   style.textContent = css;
   document.head.appendChild(style);
 
+  const baseVideo = 'assets/videos/training/';
+  const basePoster = 'assets/images/video-posters/';
   const videos = [
-    {cat:'technique',id:'1xNjIescjNjdE1h7fCRRfwO2DPegkKm2m',title:'Junior Net Lift Technique',label:'Technique',desc:'Short, focused technical coaching for developing correct contact and control.',alt:'Junior net lift badminton coaching'},
-    {cat:'footwork',id:'1ES9PkjMy_m9jHY4zekgvXa5xQZ4eYL2L',title:'Baseline Footwork',label:'Footwork',desc:'Movement training designed to build balance, recovery and efficient court coverage.',alt:'Badminton baseline footwork training'},
-    {cat:'footwork',id:'1Q2RlF5H_U8HznDEecvNPuqT8MvfTCY5k',title:'Junior Agility Drill',label:'Footwork & Agility',desc:'Fast movement work that develops coordination and confident court movement.',alt:'Junior badminton agility drill'},
-    {cat:'multishuttle',id:'1yMCXqPcveOBs_OAvUmspceZ46Dkekkdq',title:'Multi-Shuttle Defence',label:'Multi-Shuttle',desc:'Repeated defensive patterns for reactions, consistency and movement under pressure.',alt:'Multi-shuttle badminton defence drill'},
-    {cat:'fitness',id:'1BRJbp1131_7COTFW91ggxmdseLutWcdv',title:'Junior Group Warm-Up',label:'Fitness & Conditioning',desc:'Fun physical preparation that develops energy, coordination and group engagement.',alt:'Junior badminton group warm up'},
-    {cat:'match',id:'1D-XnEBucsV90Dmmf4t7zVwWTcFr9tKrN',title:'Doubles Match Play',label:'Match Play',desc:'Putting movement, shot selection and tactical awareness into a live rally environment.',alt:'Badminton doubles match play'}
-  ];
+    {cat:'technique',file:'basic-fore-court-skill-drill.mp4',title:'Basic Fore Court Skill Drill',label:'Technique',desc:'Controlled fore-court movement, touch and positioning for better net-area execution.'},
+    {cat:'group',file:'group-training-focusing-on-rotation-fore-court-skills-and-base-recovery.mp4',title:'Group Training: Rotation, Fore Court & Recovery',label:'Group Training',desc:'Structured group work combining rotation, fore-court skills and recovery back to base.'},
+    {cat:'footwork',file:'court-shadow-play-training.mp4',title:'Court Shadow Play Training',label:'Footwork',desc:'Movement patterning without a shuttle to reinforce efficient court coverage and recovery.'},
+    {cat:'footwork',file:'shuttle-pick-shadow-training.mp4',title:'Shuttle Pick Shadow Training',label:'Footwork',desc:'Low-position movement and recovery work to improve balance, control and court awareness.'},
+    {cat:'technique',file:'backhand-service-training.mp4',title:'Backhand Service Training',label:'Technique',desc:'Backhand service mechanics focused on control, consistency and repeatable preparation.'},
+    {cat:'footwork',file:'basic-movement-training-with-flexibility-pace.mp4',title:'Basic Movement Training with Flexible Pace',label:'Movement',desc:'Basic movement training that develops balance, rhythm and adaptable movement speed.'},
+    {cat:'technique',file:'basic-ready-to-hit-training.mp4',title:'Basic Ready to Hit Training',label:'Technique',desc:'Ready-position habits and response timing that prepare players to move and strike earlier.'},
+    {cat:'footwork',file:'strokes-timing-and-rear-court-recovery-footwork-training.mp4',title:'Stroke Timing & Rear Court Recovery',label:'Footwork',desc:'Combines stroke timing with recovery movement from the rear court back into position.'},
+    {cat:'footwork',file:'agility-and-footwork-training.mp4',title:'Agility & Footwork Training',label:'Agility',desc:'Fast movement work designed to improve coordination, speed and efficient court coverage.'},
+    {cat:'coaching',file:'coachs-observation-and-correction-advise-for-trainees.mp4',title:'Coach Observation & Correction',label:'Coaching',desc:'Live observation, technical feedback and immediate correction during a training session.'},
+    {cat:'multishuttle',file:'court-movement-and-strokes-multi-shuttle-drill.mp4',title:'Court Movement & Strokes Multi-Shuttle Drill',label:'Multi-Shuttle',desc:'Repeated movement and stroke sequences for consistency, reactions and sustained quality.'}
+  ].map(v => ({...v,src:baseVideo+v.file,poster:basePoster+v.file.replace(/\.mp4$/i,'.webp')}));
 
-  const cardHtml = v => `<article class="training-video" tabindex="0" role="button" data-category="${v.cat}" data-video-id="${v.id}" data-title="${v.title}"><img loading="lazy" decoding="async" src="https://drive.google.com/thumbnail?id=${v.id}&sz=w1000" alt="${v.alt}"><span class="video-play">▶</span><div class="video-copy"><small>${v.label}</small><h3>${v.title}</h3><p>${v.desc}</p></div></article>`;
+  const cardHtml = v => `<article class="training-video" tabindex="0" role="button" data-category="${v.cat}" data-video-src="${v.src}" data-video-poster="${v.poster}" data-title="${v.title}"><img loading="lazy" decoding="async" src="${v.poster}" alt="${v.title}"><span class="video-play">▶</span><div class="video-copy"><small>${v.label}</small><h3>${v.title}</h3><p>${v.desc}</p></div></article>`;
 
   const section = document.createElement('section');
   section.className = 'section video-showcase';
   section.id = 'videos';
-  section.innerHTML = `<div class="wrap"><div class="section-head"><div><span class="kicker">Training in action</span><h2>See how JNBC<br>builds players.</h2></div><p>Real academy training footage covering technique, footwork, multi-shuttle drills, conditioning and match play. Videos are hosted on Google Drive and only load after you choose to watch.</p></div><div class="video-filters" aria-label="Filter training videos"><button class="video-filter active" data-filter="all">All</button><button class="video-filter" data-filter="technique">Technique</button><button class="video-filter" data-filter="footwork">Footwork</button><button class="video-filter" data-filter="multishuttle">Multi-Shuttle</button><button class="video-filter" data-filter="fitness">Fitness</button><button class="video-filter" data-filter="match">Match Play</button></div><div class="video-gallery">${videos.map(cardHtml).join('')}</div><p class="video-note">Lightweight by design: only preview images load with the page. The Google Drive video player is created only when a visitor clicks a video.</p></div>`;
+  section.innerHTML = `<div class="wrap"><div class="section-head"><div><span class="kicker">Training in action</span><h2>See how JNBC<br>builds players.</h2></div><p>Real JNBC training footage covering technique, footwork, group drills, multi-shuttle work and direct coaching feedback. The clips are locally compressed for fast playback.</p></div><div class="video-filters" aria-label="Filter training videos"><button class="video-filter active" data-filter="all">All</button><button class="video-filter" data-filter="technique">Technique</button><button class="video-filter" data-filter="footwork">Footwork</button><button class="video-filter" data-filter="group">Group</button><button class="video-filter" data-filter="multishuttle">Multi-Shuttle</button><button class="video-filter" data-filter="coaching">Coaching</button></div><div class="video-gallery">${videos.map(cardHtml).join('')}</div><p class="video-note">Lightweight by design: only small WebP poster images load with the page. Each MP4 is loaded only after a visitor chooses a video.</p></div>`;
 
   const testimonials = document.getElementById('testimonials');
   if (testimonials) testimonials.parentNode.insertBefore(section, testimonials);
@@ -71,14 +78,17 @@
   const frame = document.getElementById('videoFrame');
   const title = document.getElementById('videoModalTitle');
   const openVideo = card => {
-    const id = card.dataset.videoId;
+    const src = card.dataset.videoSrc;
+    const poster = card.dataset.videoPoster;
     title.textContent = card.dataset.title || 'JNBC Training Video';
-    frame.innerHTML = `<iframe src="https://drive.google.com/file/d/${id}/preview" allow="autoplay; fullscreen" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe>`;
+    frame.innerHTML = `<video controls autoplay playsinline preload="metadata" poster="${poster}"><source src="${src}" type="video/mp4">Your browser does not support HTML5 video.</video>`;
     modal.classList.add('open');
     modal.setAttribute('aria-hidden','false');
     document.body.style.overflow = 'hidden';
   };
   const closeVideo = () => {
+    const player = frame.querySelector('video');
+    if (player) player.pause();
     modal.classList.remove('open');
     modal.setAttribute('aria-hidden','true');
     frame.innerHTML = '';
