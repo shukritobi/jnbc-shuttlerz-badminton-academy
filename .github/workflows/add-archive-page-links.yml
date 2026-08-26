@@ -1,0 +1,52 @@
+name: Wire Archive and News into main site
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/add-archive-page-links.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Patch homepage
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('index.html')
+          s=p.read_text()
+
+          # 1. Navigation link
+          old='<a href="#testimonials">Testimonials</a><a href="register.html">Register</a>'
+          new='<a href="#testimonials">Testimonials</a><a href="archive.html">Archive & News</a><a href="register.html">Register</a>'
+          if old in s and 'href="archive.html">Archive & News</a>' not in s:
+              s=s.replace(old,new,1)
+
+          # 2. Footer branding to match header
+          old_footer='<div class="footer-brand"><picture><source srcset="assets/images/branding/logo.webp" type="image/webp"><img src="assets/images/branding/jnbc-logo.png" alt="JNBC Shuttlerz logo" onerror="this.style.display=\'none\'"></picture><div class="brand-name"><strong>JNBC Shuttlerz</strong><small>Badminton Academy</small></div></div>'
+          new_footer='<div class="footer-brand"><picture><source srcset="assets/images/branding/logo.webp" type="image/webp"><img src="assets/images/branding/jnbc-logo.png" alt="JNBC Shuttlerz Academy logo" onerror="this.style.display=\'none\'"></picture><div class="brand-name"><strong>JNBC Shuttlerz Academy</strong></div></div>'
+          if old_footer in s:
+              s=s.replace(old_footer,new_footer,1)
+
+          # 3. Homepage archive teaser before FAQ
+          marker='<section class="section alt"><div class="wrap faq"><div><span class="kicker">Quick answers</span>'
+          if marker in s and 'id="archive-teaser"' not in s:
+              teaser='''<style>\n.archive-teaser-grid{display:grid;grid-template-columns:1.15fr .85fr .85fr;gap:15px;margin-top:34px}.archive-teaser-card{position:relative;min-height:330px;border:1px solid var(--line);border-radius:20px;overflow:hidden;background:#101621}.archive-teaser-card img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}.archive-teaser-card:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(4,7,12,.96),rgba(4,7,12,.16) 68%)}.archive-teaser-copy{position:absolute;z-index:2;left:20px;right:20px;bottom:20px}.archive-teaser-copy small{color:#8ba0ff;font-weight:900;text-transform:uppercase;letter-spacing:.09em}.archive-teaser-copy h3{font-size:2rem;margin:8px 0}.archive-teaser-copy p{margin:0;color:#bbc3cf;font-size:.76rem}.archive-teaser-actions{margin-top:24px}@media(max-width:850px){.archive-teaser-grid{grid-template-columns:1fr 1fr}.archive-teaser-card:first-child{grid-column:1/-1}}@media(max-width:560px){.archive-teaser-grid{grid-template-columns:1fr}.archive-teaser-card:first-child{grid-column:auto}}\n</style>\n<section class="section" id="archive-teaser"><div class="wrap"><div class="section-head"><div><span class="kicker">Archive & Current News</span><h2>Results, history<br>and milestones.</h2></div><p>JNBC now has a dedicated archive for tournament achievements, historical badminton photos and media cut-outs without making the main page even longer.</p></div><div class="archive-teaser-grid"><a class="archive-teaser-card" href="archive.html"><img loading="lazy" src="assets/images/archive/2026-kavisha-msu-womens-singles-champion.webp" alt="Coach Kavisha 2026 achievement" onerror="this.style.display='none'"><div class="archive-teaser-copy"><small>2026 • Current Achievement</small><h3>Kavisha — MSU Champion</h3><p>Women’s Singles Champion, MSU University Badminton Championships 2026.</p></div></a><a class="archive-teaser-card" href="archive.html"><img loading="lazy" src="assets/images/archive/2025-justin-perak-veteran-singles-champion.webp" alt="Coach Justin 2025 achievement" onerror="this.style.display='none'"><div class="archive-teaser-copy"><small>2025 • Achievement</small><h3>Justin — Veteran Champion</h3><p>Men’s Veteran Singles Champion at the Perak Badminton Tournament Championships.</p></div></a><a class="archive-teaser-card" href="archive.html"><img loading="lazy" src="assets/images/archive/1999-justin-team-dsc-archive.webp" alt="JNBC historical archive" onerror="this.style.display='none'"><div class="archive-teaser-copy"><small>From the Archive</small><h3>Badminton Roots</h3><p>Historical milestones from Coach Justin’s badminton journey and academy history.</p></div></a></div><div class="archive-teaser-actions"><a class="btn secondary" href="archive.html">Explore Archive & News →</a></div></div></section>\n'''
+              s=s.replace(marker,teaser+marker,1)
+
+          p.write_text(s)
+          PY
+      - name: Commit homepage update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Add Archive and News navigation and teaser" || exit 0
+          git push origin main
