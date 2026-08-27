@@ -114,3 +114,32 @@
     });
   }));
 })();
+
+(() => {
+  if (document.getElementById('trainees')) return;
+  const coaches = document.getElementById('coaches');
+  const training = document.getElementById('training');
+  if (!coaches || !training) return;
+
+  const css = document.createElement('style');
+  css.textContent = `
+    .trainee-showcase{display:grid;grid-template-columns:1.35fr .65fr;gap:18px;align-items:stretch}
+    .trainee-photo{position:relative;min-height:520px;border:1px solid var(--line);border-radius:24px;overflow:hidden;background:#101621}
+    .trainee-photo.side{min-height:520px}
+    .trainee-photo img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+    .trainee-photo:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(5,8,13,.9),rgba(5,8,13,.04) 60%)}
+    .trainee-caption{position:absolute;z-index:2;left:22px;right:22px;bottom:21px}
+    .trainee-caption small{color:#86a0ff;font-size:.68rem;font-weight:900;letter-spacing:.11em;text-transform:uppercase}
+    .trainee-caption h3{font-size:2rem;margin:7px 0}
+    .trainee-caption p{max-width:580px;margin:0;color:#c5ccd6;font-size:.8rem;line-height:1.6}
+    @media(max-width:800px){.trainee-showcase{grid-template-columns:1fr}.trainee-photo,.trainee-photo.side{min-height:430px}}
+    @media(max-width:560px){.trainee-photo,.trainee-photo.side{min-height:360px}.trainee-caption h3{font-size:1.65rem}}
+  `;
+  document.head.appendChild(css);
+
+  const section = document.createElement('section');
+  section.className = 'section alt';
+  section.id = 'trainees';
+  section.innerHTML = `<div class="wrap"><div class="section-head"><div><span class="kicker">JNBC Group Trainees</span><h2>Learn together.<br>Progress together.</h2></div><p>Group training gives junior players a structured place to develop badminton fundamentals, movement, confidence, discipline and enjoyment alongside teammates.</p></div><div class="trainee-showcase"><article class="trainee-photo"><img loading="lazy" decoding="async" src="assets/images/trainees/jnbc-group-trainees-01.webp" alt="JNBC junior group trainees on badminton court" onerror="this.style.opacity='.05'"><div class="trainee-caption"><small>Junior Group Development</small><h3>Building Strong Fundamentals Together</h3><p>Structured group sessions combine technical learning, movement, repetition and a positive team environment.</p></div></article><article class="trainee-photo side"><img loading="lazy" decoding="async" src="assets/images/trainees/jnbc-group-trainees-02.webp" alt="JNBC junior group trainees" onerror="this.style.opacity='.05'"><div class="trainee-caption"><small>JNBC Trainees</small><h3>Basics First. Brilliance Next.</h3><p>A supportive pathway for young players to learn, improve and enjoy badminton.</p></div></article></div></div>`;
+  training.parentNode.insertBefore(section, training);
+})();
