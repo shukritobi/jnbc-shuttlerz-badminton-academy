@@ -1,0 +1,57 @@
+name: Restore uploaded core team photo
+on:
+  push:
+    paths:
+      - '.github/workflows/restore-team-photo.yml'
+permissions:
+  contents: write
+jobs:
+  restore:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Restore uploaded team banner
+        shell: python
+        run: |
+          from pathlib import Path
+          import re
+
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Remove the generated seven-column lineup CSS.
+          s = re.sub(r'\s*<style id="core-team-seven-person-lineup">.*?</style>\s*', '\n', s, flags=re.S)
+
+          # Replace the generated seven-person lineup markup with the uploaded group photo.
+          pattern = r'<div class="core-team-group core-team-lineup">.*?(?=<div class="coach-grid|<div class="coaches-grid|<article class="coach-card|<div class="coach-card)'
+          replacement = '''<div class="core-team-group">
+  <img class="core-team-group-photo" src="assets/images/coaches/jnbc-core-team-group.webp" alt="JNBC Shuttlerz Academy core team" loading="lazy" decoding="async">
+  <div class="core-team-group-copy"><small>JNBC Core Team</small><strong>One team. One standard.</strong></div>
+</div>'''
+          new_s, count = re.subn(pattern, replacement, s, count=1, flags=re.S)
+          if count == 0:
+              # Fallback: replace from lineup opening through its copy block.
+              pattern2 = r'<div class="core-team-group core-team-lineup">.*?<div class="core-team-group-copy">.*?</div>\s*</div>'
+              new_s, count = re.subn(pattern2, replacement, s, count=1, flags=re.S)
+          if count == 0:
+              raise SystemExit('Could not locate generated team lineup block')
+
+          # Add a hard override that preserves the uploaded image's complete 7-person composition.
+          css = '''
+<style id="core-team-photo-full">
+.core-team-group{position:relative!important;height:auto!important;min-height:0!important;aspect-ratio:auto!important;overflow:hidden!important;border-radius:24px;background:#111}
+.core-team-group>.core-team-group-photo{position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:auto!important;max-width:100%!important;max-height:none!important;object-fit:contain!important;object-position:center!important}
+.core-team-group>.core-team-group-copy{position:absolute!important;z-index:3;left:0!important;right:0!important;bottom:0!important;padding:78px 28px 24px!important;background:linear-gradient(to top,rgba(3,8,19,.92),rgba(3,8,19,.48) 46%,transparent)!important;color:#fff}
+.core-team-group>.core-team-group-copy small{display:block;color:#9fb1ff;margin-bottom:7px}
+@media(max-width:760px){.core-team-group{border-radius:18px}.core-team-group>.core-team-group-copy{padding:52px 18px 16px!important}}
+</style>
+'''
+          new_s = new_s.replace('</head>', css + '</head>', 1)
+          p.write_text(new_s, encoding='utf-8')
+      - name: Commit restored team photo
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Restore uploaded JNBC core team photo" || exit 0
+          git push
