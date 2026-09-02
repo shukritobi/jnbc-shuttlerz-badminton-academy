@@ -39,7 +39,6 @@
     {cat:'technique',file:'basic-fore-court-skill-drill.mp4',title:'Basic Fore Court Skill Drill',label:'Technique',desc:'Controlled fore-court movement, touch and positioning for better net-area execution.'},
     {cat:'group',file:'group-training-focusing-on-rotation-fore-court-skills-and-base-recovery.mp4',title:'Group Training: Rotation, Fore Court & Recovery',label:'Group Training',desc:'Structured group work combining rotation, fore-court skills and recovery back to base.'},
     {cat:'footwork',file:'court-shadow-play-training.mp4',title:'Court Shadow Play Training',label:'Footwork',desc:'Movement patterning without a shuttle to reinforce efficient court coverage and recovery.'},
-    {cat:'footwork',file:'shuttle-pick-shadow-training.mp4',title:'Shuttle Pick Shadow Training',label:'Footwork',desc:'Low-position movement and recovery work to improve balance, control and court awareness.'},
     {cat:'technique',file:'backhand-service-training.mp4',title:'Backhand Service Training',label:'Technique',desc:'Backhand service mechanics focused on control, consistency and repeatable preparation.'},
     {cat:'footwork',file:'basic-movement-training-with-flexibility-pace.mp4',title:'Basic Movement Training with Flexible Pace',label:'Movement',desc:'Basic movement training that develops balance, rhythm and adaptable movement speed.'},
     {cat:'technique',file:'basic-ready-to-hit-training.mp4',title:'Basic Ready to Hit Training',label:'Technique',desc:'Ready-position habits and response timing that prepare players to move and strike earlier.'},
