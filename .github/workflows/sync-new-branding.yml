@@ -1,0 +1,102 @@
+name: Sync new JNBC branding
+
+on:
+  push:
+    paths:
+      - '.github/workflows/sync-new-branding.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  sync-branding:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Install image tools
+        run: python -m pip install --quiet pillow
+
+      - name: Apply uploaded logo and create favicon
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          from PIL import Image
+
+          logo_path = Path('assets/images/branding/logo.webp')
+          if not logo_path.exists():
+              raise SystemExit('Uploaded assets/images/branding/logo.webp was not found')
+
+          # Create a clean square favicon from the newly uploaded branding.
+          im = Image.open(logo_path).convert('RGBA')
+          alpha = im.getchannel('A')
+          bbox = alpha.getbbox()
+          if bbox:
+              im = im.crop(bbox)
+
+          w, h = im.size
+          # Wide brand lockups normally place the icon/mark on the left.
+          # For a favicon, isolate that mark so it remains readable at 16-32 px.
+          if h and w / h > 2.2:
+              crop_w = min(w, int(h * 1.25))
+              im = im.crop((0, 0, crop_w, h))
+              alpha = im.getchannel('A')
+              bbox = alpha.getbbox()
+              if bbox:
+                  im = im.crop(bbox)
+
+          target = 512
+          inner = 430
+          im.thumbnail((inner, inner), Image.Resampling.LANCZOS)
+          canvas = Image.new('RGBA', (target, target), (0, 0, 0, 0))
+          x = (target - im.width) // 2
+          y = (target - im.height) // 2
+          canvas.alpha_composite(im, (x, y))
+          canvas.save('favicon.png', 'PNG', optimize=True)
+
+          logo_ref = 'assets/images/branding/logo.webp?v=20260902'
+          favicon_links = (
+              '<link rel="icon" type="image/png" sizes="512x512" href="favicon.png?v=20260902">\n'
+              '<link rel="shortcut icon" href="favicon.png?v=20260902">\n'
+              '<link rel="apple-touch-icon" href="favicon.png?v=20260902">\n'
+          )
+
+          html_files = sorted(Path('.').glob('*.html'))
+          if not html_files:
+              raise SystemExit('No root HTML pages found')
+
+          for path in html_files:
+              html = path.read_text(encoding='utf-8')
+
+              # Remove legacy logo fallback everywhere and force the uploaded WebP.
+              html = html.replace('assets/images/branding/jnbc-logo.png', 'assets/images/branding/logo.webp')
+              html = re.sub(
+                  r'assets/images/branding/logo\.webp(?:\?v=[^\"\'\s<>]+)?',
+                  logo_ref,
+                  html,
+              )
+
+              # Standardise favicon links on every page.
+              html = re.sub(
+                  r'\s*<link\b[^>]*\brel=[\"\'](?:icon|shortcut icon|apple-touch-icon)[\"\'][^>]*>\s*',
+                  '\n',
+                  html,
+                  flags=re.I,
+              )
+              if '</head>' not in html:
+                  raise SystemExit(f'No </head> found in {path}')
+              html = html.replace('</head>', favicon_links + '</head>', 1)
+
+              path.write_text(html, encoding='utf-8')
+              print(f'Updated branding: {path}')
+          PY
+
+      - name: Commit branding sync
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add '*.html' favicon.png
+          git commit -m "Apply new JNBC logo and favicon site-wide" || exit 0
+          git push
