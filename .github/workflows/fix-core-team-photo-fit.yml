@@ -1,0 +1,42 @@
+name: Fix core team photo fit
+on:
+  push:
+    paths:
+      - '.github/workflows/fix-core-team-photo-fit.yml'
+permissions:
+  contents: write
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Make full core team photo visible
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+          marker = '<style id="core-team-photo-fit">'
+          if marker not in s:
+              css = '''\n<style id="core-team-photo-fit">
+.core-team-group{position:relative!important;overflow:hidden!important;height:auto!important;min-height:0!important;aspect-ratio:auto!important;background:#d9dde4}
+.core-team-group>img{position:relative!important;inset:auto!important;width:100%!important;height:auto!important;max-height:none!important;object-fit:contain!important;object-position:center center!important;display:block!important}
+@media(max-width:700px){.core-team-group>img{width:100%!important;height:auto!important;object-fit:contain!important}}
+</style>\n'''
+              s = s.replace('</head>', css + '</head>', 1)
+              p.write_text(s, encoding='utf-8')
+              print('Added full-width core team image fit override')
+          else:
+              print('Core team photo fit override already exists')
+          PY
+      - name: Commit changes
+        run: |
+          if git diff --quiet; then
+            echo "No changes to commit"
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "Show full JNBC core team photo"
+          git push
