@@ -17,7 +17,6 @@
   .video-copy small{color:#8da1ff;font-weight:900;letter-spacing:.1em;text-transform:uppercase;font-size:.65rem}
   .video-copy h3{font-size:1.65rem;margin:8px 0 5px;line-height:1.05}
   .video-copy p{margin:0;color:#b7c0ce;font-size:.75rem;line-height:1.45}
-  .video-note{margin-top:17px;color:#7f8998;font-size:.72rem;line-height:1.55}
   .video-modal{position:fixed;inset:0;z-index:1000;display:none;place-items:center;padding:24px;background:rgba(2,5,9,.9);backdrop-filter:blur(12px)}
   .video-modal.open{display:grid}
   .video-modal-box{width:min(1040px,100%);background:#080d15;border:1px solid rgba(255,255,255,.14);border-radius:22px;overflow:hidden;box-shadow:0 35px 100px rgba(0,0,0,.6)}
@@ -53,7 +52,7 @@
   const section = document.createElement('section');
   section.className = 'section video-showcase';
   section.id = 'videos';
-  section.innerHTML = `<div class="wrap"><div class="section-head"><div><span class="kicker">Training in action</span><h2>See how JNBC<br>builds players.</h2></div><p>Real JNBC training footage covering technique, footwork, group drills, multi-shuttle work and direct coaching feedback. The clips are locally compressed for fast playback.</p></div><div class="video-filters" aria-label="Filter training videos"><button class="video-filter active" data-filter="all">All</button><button class="video-filter" data-filter="technique">Technique</button><button class="video-filter" data-filter="footwork">Footwork</button><button class="video-filter" data-filter="group">Group</button><button class="video-filter" data-filter="multishuttle">Multi-Shuttle</button><button class="video-filter" data-filter="coaching">Coaching</button></div><div class="video-gallery">${videos.map(cardHtml).join('')}</div><p class="video-note">Lightweight by design: only small WebP poster images load with the page. Each MP4 is loaded only after a visitor chooses a video.</p></div>`;
+  section.innerHTML = `<div class="wrap"><div class="section-head"><div><span class="kicker">Training in action</span><h2>See how JNBC<br>builds players.</h2></div><p>Real JNBC training footage covering technique, footwork, group drills, multi-shuttle work and direct coaching feedback. The clips are locally compressed for fast playback.</p></div><div class="video-filters" aria-label="Filter training videos"><button class="video-filter active" data-filter="all">All</button><button class="video-filter" data-filter="technique">Technique</button><button class="video-filter" data-filter="footwork">Footwork</button><button class="video-filter" data-filter="group">Group</button><button class="video-filter" data-filter="multishuttle">Multi-Shuttle</button><button class="video-filter" data-filter="coaching">Coaching</button></div><div class="video-gallery">${videos.map(cardHtml).join('')}</div></div>`;
 
   const testimonials = document.getElementById('testimonials');
   if (testimonials) testimonials.parentNode.insertBefore(section, testimonials);
