@@ -1,0 +1,95 @@
+name: Apply JNBC Praveen and archive updates
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - '.github/workflows/apply-praveen-site-updates.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+      - name: Update JNBC website
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+
+          # ---------- Main landing page ----------
+          p = Path('index.html')
+          s = p.read_text(encoding='utf-8')
+
+          # Hero subtitle underneath new logo.
+          if '.hero-brand-subtitle{' not in s:
+              css = '''\n.hero-brand-subtitle{display:block;width:min(390px,78vw);margin:-12px 0 14px;color:#fff;font-family:Inter,system-ui,sans-serif;font-size:.78rem;font-weight:800;letter-spacing:.28em;text-transform:uppercase;text-align:center;line-height:1}.praveen-card{}@media(min-width:951px){.coach-grid{grid-template-columns:repeat(6,1fr)}.coach-grid>.coach-card{grid-column:span 2}.coach-grid>.founder{grid-column:span 4}.coach-grid>.praveen-card{grid-column:2/span 2}.coach-grid>.denesh-card{grid-column:4/span 2}}@media(max-width:700px){.hero-brand-subtitle{width:min(300px,78vw);margin:-8px 0 12px;font-size:.66rem;letter-spacing:.24em}}\n'''
+              s = s.replace('</style>', css + '</style>', 1)
+
+          hero_pic = '<picture class="hero-brand"><source srcset="assets/images/branding/logo.webp" type="image/webp"><img class="hero-brand-logo" src="assets/images/branding/jnbc-logo.png" alt="JNBC Shuttlerz Academy"></picture>'
+          if hero_pic in s and 'hero-brand-subtitle' not in s[s.find(hero_pic):s.find(hero_pic)+500]:
+              s = s.replace(hero_pic, hero_pic + '<span class="hero-brand-subtitle">Badminton Academy</span>', 1)
+
+          # Core team copy now reflects Praveen as seventh member.
+          s = s.replace("JNBC's six core team members", "JNBC's seven core team members")
+          s = s.replace('6 CORE TEAM MEMBERS', '7 CORE TEAM MEMBERS')
+          s = s.replace('Six core members bringing together coaching, player development, programme strategy, discipline and long-term academy growth.', 'Seven core members bringing together coaching, player development, programme strategy, discipline and long-term academy growth.')
+
+          # Add Praveen card before Denesh if not already present.
+          if 'praveen-profile.webp' not in s:
+              praveen = '''<article class="coach-card praveen-card"><div class="coach-photo"><img src="assets/images/coaches/praveen-profile.webp" alt="Praveenthen" loading="lazy" decoding="async" onerror="this.style.display='none';this.parentElement.classList.add('missing');this.parentElement.innerHTML='<div class=missing-mark><b>P</b><span>Photo coming soon</span></div>'"></div><div class="coach-info"><span class="role">JNBC Coach</span><h3>Praveenthen</h3><p>Bachelor of Science (Hons) Biomedicine, Sunway University.</p><ul class="credential-list"><li>Tamil Vizha Social Men Double 2026 Champion</li><li>RGBC Social Mixed Double 2nd Runner-Up 2026</li><li>SEGi Open Team Event 1st Runner-Up 2025</li><li>HWUM Team Event 2nd Runner-Up 2025</li><li>Klang Masters Men Single U21 2nd Runner-Up 2025</li></ul></div></article>\n'''
+              marker = '<article class="coach-card denesh-card">'
+              if marker in s:
+                  s = s.replace(marker, praveen + marker, 1)
+
+          p.write_text(s, encoding='utf-8')
+
+          # ---------- Video gallery ----------
+          p = Path('assets/js/jnbc-videos.js')
+          s = p.read_text(encoding='utf-8')
+          s = re.sub(r"\n\s*\{cat:'footwork',file:'shuttle-pick-shadow-training\.mp4',title:'Shuttle Pick Shadow Training',label:'Footwork',desc:'[^']*'\},", '', s, count=1)
+          p.write_text(s, encoding='utf-8')
+
+          # ---------- Archive page ----------
+          p = Path('archive.html')
+          s = p.read_text(encoding='utf-8')
+          s = s.replace('<div class="stat"><b>6</b><span>Core team members</span></div>', '<div class="stat"><b>7</b><span>Core team members</span></div>')
+          if 'data-archive-filter="praveen"' not in s:
+              s = s.replace('<button class="filter" data-archive-filter="kavisha">Kavisha</button>', '<button class="filter" data-archive-filter="kavisha">Kavisha</button><button class="filter" data-archive-filter="praveen">Praveen</button>')
+          if '.media-archive-intro{' not in s:
+              css = '''\n.media-archive-intro{margin:0 0 26px;padding:21px 22px;border:1px solid rgba(91,119,255,.3);border-radius:17px;background:linear-gradient(135deg,rgba(56,99,255,.11),rgba(237,28,46,.055));display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start}.media-archive-intro b{font:900 1.45rem 'Barlow Condensed';text-transform:uppercase;color:#fff}.media-archive-intro p{margin:3px 0 0;color:#aeb7c4;font-size:.8rem;line-height:1.65}.media-archive-intro span{display:grid;place-items:center;width:42px;height:42px;border-radius:12px;background:#294aff;font-weight:900}@media(max-width:620px){.media-archive-intro{grid-template-columns:1fr}.media-archive-intro span{display:none}}\n'''
+              s = s.replace('</style>', css + '</style>', 1)
+          if 'Justin’s podium achievements in various tournaments' not in s:
+              intro = '''<div class="media-archive-intro"><span>01</span><div><b>Media Archive & Podium Record</b><p>All supplied newspaper and media cut-outs are retained in this archive. They sit alongside Coach Justin’s podium achievements in various tournaments, creating a chronological record of his competitive badminton journey and the academy’s wider story.</p></div></div>'''
+              s = s.replace('<div class="toolbar">', intro + '<div class="toolbar">', 1)
+          p.write_text(s, encoding='utf-8')
+
+          # ---------- Archive data ----------
+          p = Path('assets/js/archive.js')
+          s = p.read_text(encoding='utf-8')
+          if 'praveen-tamil-vizha-2026' not in s:
+              insert = '''{"id":"praveen-tamil-vizha-2026","year":2026,"person":"Praveenthen","category":"achievement","title":"Tamil Vizha Social Men Double 2026","subtitle":"Champion","image":"assets/images/archive/praveen-achievement-02.webp","note":"Coach Praveenthen — Tamil Vizha Social Men Double 2026 Champion."},{"id":"praveen-segi-team-2025","year":2025,"person":"Praveenthen","category":"achievement","title":"SEGi Open Team Event 2025","subtitle":"1st Runner-Up","image":"assets/images/archive/praveen-achievement-01.webp","note":"Coach Praveenthen — SEGi Open Team Event 2025, 1st Runner-Up."},'''
+              s = s.replace('const archiveItems = [', 'const archiveItems = [' + insert, 1)
+          # Put media cut-outs under Justin so his filter includes the papercuts, and make the intent explicit.
+          s = s.replace('"person":"JNBC Archive","category":"media","title":"Badminton Media Archive — 2016"', '"person":"Justin Nathan","category":"media","title":"Coach Justin Media Archive — 2016"')
+          s = s.replace('"person":"JNBC Archive","category":"media","title":"Badminton Media Archive — 2015"', '"person":"Justin Nathan","category":"media","title":"Coach Justin Media Archive — 2015"')
+          s = s.replace('"person":"JNBC Archive","category":"media","title":"Badminton Media Archive — 2007"', '"person":"Justin Nathan","category":"media","title":"Coach Justin Media Archive — 2007"')
+          s = s.replace('2016 media cut-out supplied by the academy documenting badminton participation and achievements.', '2016 media cut-out supplied by the academy as part of Coach Justin’s archive, documenting his badminton journey and podium achievements across various tournaments.')
+          s = s.replace('2015 media cut-out supplied by the academy documenting badminton activities and achievements.', '2015 media cut-out supplied by the academy as part of Coach Justin’s archive, alongside his podium achievements across various tournaments.')
+          s = s.replace('Additional 2015 media cut-out supplied by the academy.', 'Additional 2015 media cut-out retained as part of Coach Justin’s competitive badminton and podium-achievement archive.')
+          s = s.replace('2007 historical newspaper cut-out supplied by the academy.', '2007 historical newspaper cut-out retained as part of Coach Justin’s badminton journey and tournament-achievement archive.')
+          p.write_text(s, encoding='utf-8')
+          PY
+      - name: Commit updates and remove temporary workflow
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          rm -f .github/workflows/apply-praveen-site-updates.yml
+          git add -A
+          git commit -m "Add Praveen and update JNBC archive and hero" || exit 0
+          git push origin main
