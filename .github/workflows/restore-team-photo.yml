@@ -19,10 +19,9 @@ jobs:
           p = Path('index.html')
           s = p.read_text(encoding='utf-8')
 
-          # Remove the generated seven-column lineup CSS.
           s = re.sub(r'\s*<style id="core-team-seven-person-lineup">.*?</style>\s*', '\n', s, flags=re.S)
+          s = re.sub(r'\s*<style id="core-team-photo-full">.*?</style>\s*', '\n', s, flags=re.S)
 
-          # Replace the generated seven-person lineup markup with the uploaded group photo.
           pattern = r'<div class="core-team-group core-team-lineup">.*?(?=<div class="coach-grid|<div class="coaches-grid|<article class="coach-card|<div class="coach-card)'
           replacement = '''<div class="core-team-group">
   <img class="core-team-group-photo" src="assets/images/coaches/jnbc-core-team-group.webp" alt="JNBC Shuttlerz Academy core team" loading="lazy" decoding="async">
@@ -30,13 +29,11 @@ jobs:
 </div>'''
           new_s, count = re.subn(pattern, replacement, s, count=1, flags=re.S)
           if count == 0:
-              # Fallback: replace from lineup opening through its copy block.
               pattern2 = r'<div class="core-team-group core-team-lineup">.*?<div class="core-team-group-copy">.*?</div>\s*</div>'
               new_s, count = re.subn(pattern2, replacement, s, count=1, flags=re.S)
           if count == 0:
               raise SystemExit('Could not locate generated team lineup block')
 
-          # Add a hard override that preserves the uploaded image's complete 7-person composition.
           css = '''
 <style id="core-team-photo-full">
 .core-team-group{position:relative!important;height:auto!important;min-height:0!important;aspect-ratio:auto!important;overflow:hidden!important;border-radius:24px;background:#111}
@@ -55,3 +52,4 @@ jobs:
           git add index.html
           git commit -m "Restore uploaded JNBC core team photo" || exit 0
           git push
+# trigger 2
