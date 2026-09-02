@@ -1,61 +1,25 @@
 name: Restore actual uploaded JNBC team photo
+
 on:
   push:
     paths:
       - '.github/workflows/restore-uploaded-team-photo.yml'
+
 permissions:
   contents: write
+
 jobs:
-  restore-team-photo:
+  apply:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-      - name: Replace generated collage with uploaded group photo
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-
-          path = Path('index.html')
-          html = path.read_text(encoding='utf-8')
-
-          # Remove the temporary generated collage CSS.
-          html = re.sub(r'\s*<style id="core-team-seven-person-lineup">.*?</style>\s*', '\n', html, flags=re.S)
-          html = re.sub(r'\s*<style id="core-team-photo-full">.*?</style>\s*', '\n', html, flags=re.S)
-
-          start_marker = '<div class="core-team-group core-team-lineup">'
-          next_marker = '<div class="coach-grid">'
-          start = html.find(start_marker)
-          if start < 0:
-              raise SystemExit('Generated team lineup start not found')
-          end = html.find(next_marker, start)
-          if end < 0:
-              raise SystemExit('Coach grid start not found')
-
-          replacement = '''<div class="core-team-group">
-  <img class="core-team-group-photo" src="assets/images/coaches/jnbc-core-team-group.webp" alt="JNBC Shuttlerz Academy core team" loading="lazy" decoding="async">
-  <div class="core-team-group-copy"><div><small>JNBC Core Team</small><h3>One team. One standard.</h3></div></div>
-</div>'''
-          html = html[:start] + replacement + html[end:]
-
-          # Natural image ratio, no cropping.
-          css = '''
-<style id="core-team-actual-photo">
-.core-team-group{position:relative!important;height:auto!important;min-height:0!important;aspect-ratio:auto!important;overflow:hidden!important;border-radius:24px;background:#111!important}
-.core-team-group>.core-team-group-photo{position:relative!important;inset:auto!important;display:block!important;width:100%!important;height:auto!important;max-width:100%!important;max-height:none!important;object-fit:contain!important;object-position:center center!important}
-.core-team-group>.core-team-group-copy{position:absolute!important;z-index:3!important;left:0!important;right:0!important;bottom:0!important;padding:72px 28px 24px!important;background:linear-gradient(to top,rgba(3,8,19,.92),rgba(3,8,19,.46) 48%,transparent)!important;color:#fff!important}
-.core-team-group>.core-team-group-copy small{display:block!important;color:#9fb1ff!important;margin-bottom:7px!important}
-.core-team-group>.core-team-group-copy h3{color:#fff!important;margin:0!important}
-@media(max-width:760px){.core-team-group{border-radius:18px!important}.core-team-group>.core-team-group-copy{padding:48px 17px 15px!important}.core-team-group>.core-team-group-copy h3{font-size:1.8rem!important}}
-</style>
-'''
-          html = html.replace('</head>', css + '</head>', 1)
-          path.write_text(html, encoding='utf-8')
-          PY
-      - name: Commit fix
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Restore team photo
+        run: python scripts/restore_actual_team_photo.py
+      - name: Commit
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add index.html
-          git commit -m "Use uploaded JNBC core team group photo" || exit 0
+          git commit -m "Use uploaded JNBC core team group photo"
           git push
