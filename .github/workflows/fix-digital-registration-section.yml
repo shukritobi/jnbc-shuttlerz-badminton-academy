@@ -52,3 +52,4 @@ jobs:
           git add index.html
           git commit -m "Simplify and rebalance registration section"
           git push
+# trigger
