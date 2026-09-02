@@ -32,7 +32,7 @@ header{position:sticky;top:0;z-index:50;background:rgba(7,9,15,.93);backdrop-fil
 @media(max-width:680px){.announce .wrap{justify-content:center;text-align:center}.toplinks{display:none}nav{min-height:82px}.brand-logo{width:82px;height:56px}.brand-name strong{font-size:1.3rem}.brand-name small{font-size:.52rem}.links.open{top:82px}.hero,.hero-grid{min-height:auto}.hero-content{padding:68px 0 15px}.hero h1{font-size:clamp(3.5rem,16vw,4.9rem)}.hero-person{height:430px}.hero-person img{height:420px}.hero-badge{left:10px;right:10px;bottom:18px;width:auto}.service-strip .wrap{grid-template-columns:1fr 1fr}.service-pill:nth-child(2){border-right:0}.service-pill:nth-child(-n+2){border-bottom:1px solid var(--line)}.section{padding:76px 0}.program,.program.feature{grid-column:1/-1}.principles,.coach-grid,.journey,.outcomes,.testimonial-row,.ann-grid{grid-template-columns:1fr}.founder{grid-column:auto;display:block}.founder .coach-photo{min-height:390px}.coach-photo{height:360px}.testimonial-row{display:flex;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:5px}.testimonial{min-width:85%;scroll-snap-align:start}.featured-quote{grid-template-columns:1fr}.quote-mark{font-size:3rem}.cta{padding:26px}.mobile-cta{display:block}footer{padding-bottom:105px}}
 
 .core-team-group{position:relative;margin:4px 0 34px;border-radius:24px;overflow:hidden;background:#111722;border:1px solid #dfe4ec;box-shadow:0 18px 46px rgba(12,20,34,.12)}
-.core-team-group img{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:center center}
+.core-team-group img{display:block;width:100%;height:auto;max-height:none;aspect-ratio:auto;object-fit:contain;object-position:center center}
 .core-team-group:after{content:"";position:absolute;inset:0;background:linear-gradient(to top,rgba(5,8,14,.88) 0%,rgba(5,8,14,.12) 46%,transparent 70%);pointer-events:none}
 .core-team-group-copy{position:absolute;z-index:2;left:28px;right:28px;bottom:24px;display:flex;align-items:end;justify-content:space-between;gap:24px;color:white}
 .core-team-group-copy small{display:block;margin-bottom:7px;color:#9eb0ff;font-size:.68rem;font-weight:900;letter-spacing:.14em;text-transform:uppercase}
@@ -44,6 +44,15 @@ header{position:sticky;top:0;z-index:50;background:rgba(7,9,15,.93);backdrop-fil
 
 .hero-brand-subtitle{display:block;width:min(390px,78vw);margin:-12px 0 14px;color:#fff;font-family:Inter,system-ui,sans-serif;font-size:.78rem;font-weight:800;letter-spacing:.28em;text-transform:uppercase;text-align:center;line-height:1}.praveen-card{}@media(min-width:951px){.coach-grid{grid-template-columns:repeat(6,1fr)}.coach-grid>.coach-card{grid-column:span 2}.coach-grid>.founder{grid-column:span 4}.coach-grid>.praveen-card{grid-column:2/span 2}.coach-grid>.denesh-card{grid-column:4/span 2}}@media(max-width:700px){.hero-brand-subtitle{width:min(300px,78vw);margin:-8px 0 12px;font-size:.66rem;letter-spacing:.24em}}
 </style>
+
+<style id="core-team-full-photo-fix">
+.core-team-group{height:auto!important;min-height:0!important;aspect-ratio:auto!important}
+.core-team-group>img{position:relative!important;inset:auto!important;width:100%!important;height:auto!important;max-height:none!important;aspect-ratio:auto!important;object-fit:contain!important;object-position:center center!important}
+.hero-brand-subtitle{display:none!important}
+</style>
+<link rel="icon" type="image/png" sizes="96x96" href="favicon.png">
+<link rel="shortcut icon" href="favicon.png">
+<link rel="apple-touch-icon" href="favicon.png">
 </head>
 <body>
 <div class="announce"><div class="wrap"><span>JNBC SHUTTLERZ ACADEMY • Basics First, Brilliance Next.</span><div class="toplinks"><a href="https://wa.me/60122964545">WhatsApp: 012-296 4545</a><a href="https://www.instagram.com/jnbcshuttlerz/" target="_blank" rel="noopener">Instagram</a></div></div></div>
