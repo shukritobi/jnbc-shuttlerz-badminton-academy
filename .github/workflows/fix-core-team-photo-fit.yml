@@ -40,3 +40,4 @@ jobs:
           git add index.html
           git commit -m "Show full JNBC core team photo"
           git push
+# trigger
