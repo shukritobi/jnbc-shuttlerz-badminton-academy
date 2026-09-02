@@ -141,3 +141,26 @@
   section.innerHTML = `<div class="wrap"><div class="section-head"><div><span class="kicker">JNBC Group Trainees</span><h2>Learn together.<br>Progress together.</h2></div><p>Group training gives junior players a structured place to develop badminton fundamentals, movement, confidence, discipline and enjoyment alongside teammates.</p></div><div class="trainee-showcase"><article class="trainee-photo"><img loading="lazy" decoding="async" src="assets/images/trainees/jnbc-group-trainees-01.webp" alt="JNBC junior group trainees on badminton court" onerror="this.style.opacity='.05'"><div class="trainee-caption"><small>Junior Group Development</small><h3>Building Strong Fundamentals Together</h3><p>Structured group sessions combine technical learning, movement, repetition and a positive team environment.</p></div></article><article class="trainee-photo side"><img loading="lazy" decoding="async" src="assets/images/trainees/jnbc-group-trainees-02.webp" alt="JNBC junior group trainees" onerror="this.style.opacity='.05'"><div class="trainee-caption"><small>JNBC Trainees</small><h3>Basics First. Brilliance Next.</h3><p>A supportive pathway for young players to learn, improve and enjoy badminton.</p></div></article></div></div>`;
   training.parentNode.insertBefore(section, training);
 })();
+
+(() => {
+  const digital = document.getElementById('digital');
+  if (!digital) return;
+
+  const style = document.createElement('style');
+  style.textContent = `
+    #digital .digital-single{display:grid;grid-template-columns:.92fr 1.08fr;gap:64px;align-items:center}
+    #digital .digital-copy{max-width:560px}
+    #digital .digital-copy h2{margin:12px 0 20px}
+    #digital .digital-copy p{margin:0;color:#aeb7c6;line-height:1.75;max-width:520px}
+    #digital .digital-registration-card{min-height:330px;padding:40px;border-radius:26px;display:flex;flex-direction:column;justify-content:center;background:linear-gradient(145deg,#111824,#0c121b);border:1px solid var(--line)}
+    #digital .digital-registration-card .icon{font-size:2.1rem;margin-bottom:22px}
+    #digital .digital-registration-card h3{font-size:2.25rem;margin:0 0 12px}
+    #digital .digital-registration-card p{max-width:620px;margin:0 0 26px;color:#aeb7c6;line-height:1.7}
+    #digital .digital-registration-card .btn{align-self:flex-start;min-width:250px}
+    @media(max-width:820px){#digital .digital-single{grid-template-columns:1fr;gap:30px}#digital .digital-registration-card{min-height:auto;padding:28px}}
+    @media(max-width:560px){#digital .digital-registration-card{padding:24px}#digital .digital-registration-card h3{font-size:1.9rem}#digital .digital-registration-card .btn{width:100%;min-width:0}}
+  `;
+  document.head.appendChild(style);
+
+  digital.innerHTML = `<div class="wrap digital-single"><div class="digital-copy"><span class="kicker">Digital academy tools</span><h2>Register your player.<br>We'll take it from there.</h2><p>Submit the official JNBC player registration online. The academy can then confirm the suitable programme, schedule and venue directly with you.</p></div><article class="tool digital-registration-card"><div class="icon">📝</div><h3>Player Registration</h3><p>Complete participant, guardian and relevant medical details in one place, then send the registration directly to Coach Justin via WhatsApp.</p><a class="btn secondary" href="register.html">Open Registration →</a></article></div>`;
+})();
