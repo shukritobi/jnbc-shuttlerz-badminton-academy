@@ -12,69 +12,14 @@ jobs:
   apply:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
-
-      - name: Replace cropped group image with seven-person lineup
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Apply lineup
+        run: python scripts/apply_team_lineup.py
+      - name: Commit
         run: |
-          python - <<'PY'
-          from pathlib import Path
-          import re
-
-          p = Path('index.html')
-          s = p.read_text(encoding='utf-8')
-
-          old = re.compile(r'<div class="core-team-group"><img src="assets/images/coaches/jnbc-core-team-group\.webp".*?</div></div></div><div class="coach-grid">', re.S)
-          new = '''<div class="core-team-group core-team-lineup">
-<div class="lineup-people" aria-label="JNBC core team lineup">
-<figure class="lineup-person"><img src="assets/images/coaches/praveen-profile.webp" alt="Praveenthen" loading="lazy" decoding="async"></figure>
-<figure class="lineup-person"><img src="assets/images/coaches/kavisha.png" alt="Kavisha" loading="lazy" decoding="async"></figure>
-<figure class="lineup-person"><img src="assets/images/coaches/r-muniandy.png" alt="R. Muniandy" loading="lazy" decoding="async"></figure>
-<figure class="lineup-person lineup-founder"><img src="assets/images/coaches/justin-nathan.png" alt="Justin Nathan" loading="lazy" decoding="async"></figure>
-<figure class="lineup-person"><img src="assets/images/coaches/puvendran.png" alt="Puvendran" loading="lazy" decoding="async"></figure>
-<figure class="lineup-person"><img src="assets/images/coaches/nantha-kumar.png" alt="Nantha Kumar" loading="lazy" decoding="async"></figure>
-<figure class="lineup-person"><img src="assets/images/coaches/denesh.png" alt="Denesh" loading="lazy" decoding="async"></figure>
-</div>
-<div class="core-team-group-copy"><div><small>JNBC Core Team</small><h3>One team. One standard.</h3></div></div>
-</div><div class="coach-grid">'''
-
-          s2, count = old.subn(new, s, count=1)
-          if count != 1:
-              raise SystemExit('Could not locate current core-team group markup')
-
-          css = '''
-<style id="core-team-seven-person-lineup">
-.core-team-lineup{position:relative!important;overflow:hidden!important;height:auto!important;min-height:0!important;border-radius:24px;background:#b8bbc0}
-.core-team-lineup>.lineup-people{display:grid;grid-template-columns:repeat(3,minmax(0,1fr)) 1.16fr repeat(3,minmax(0,1fr));width:100%;height:520px;background:linear-gradient(180deg,#c6c8cb 0%,#a9adb2 100%)}
-.core-team-lineup .lineup-person{position:relative;min-width:0;height:100%;margin:0;overflow:hidden;background:#b9bcc1}
-.core-team-lineup .lineup-person img{display:block;width:100%!important;height:100%!important;max-height:none!important;object-fit:cover!important;object-position:center top!important;filter:saturate(.92) contrast(1.02)}
-.core-team-lineup .lineup-person:after{content:"";position:absolute;inset:0;border-right:1px solid rgba(255,255,255,.16);pointer-events:none}
-.core-team-lineup .lineup-founder{z-index:2;box-shadow:0 0 35px rgba(0,0,0,.18)}
-.core-team-lineup .lineup-founder img{object-position:center 8%!important}
-.core-team-lineup>.core-team-group-copy{position:absolute!important;z-index:5;left:0;right:0;bottom:0;padding:90px 28px 24px!important;background:linear-gradient(to top,rgba(3,8,19,.93) 0%,rgba(3,8,19,.62) 42%,transparent 100%);color:#fff}
-.core-team-lineup>.core-team-group-copy small{color:#9fb1ff}
-@media(max-width:760px){
-  .core-team-lineup>.lineup-people{grid-template-columns:repeat(4,1fr);height:auto}
-  .core-team-lineup .lineup-person{height:250px}
-  .core-team-lineup .lineup-person:nth-child(n+5){height:235px}
-  .core-team-lineup>.core-team-group-copy{padding:70px 18px 18px!important}
-}
-@media(max-width:480px){
-  .core-team-lineup>.lineup-people{grid-template-columns:repeat(2,1fr)}
-  .core-team-lineup .lineup-person{height:245px!important}
-  .core-team-lineup .lineup-founder{grid-column:1/-1;height:310px!important;order:-1}
-}
-</style>
-'''
-          if 'id="core-team-seven-person-lineup"' not in s2:
-              s2 = s2.replace('</head>', css + '</head>', 1)
-          p.write_text(s2, encoding='utf-8')
-          PY
-
-      - name: Commit final site update
-        run: |
-          rm -f .github/workflows/apply-team-lineup.yml
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add index.html
           git commit -m "Show all seven JNBC core team members in banner"
           git push
