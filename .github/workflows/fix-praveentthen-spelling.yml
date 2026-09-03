@@ -2,6 +2,12 @@ name: Fix Praveentthen spelling site-wide
 
 on:
   push:
+    paths:
+      - 'index.html'
+      - 'archive.html'
+      - 'assets/js/**'
+      - 'README.md'
+      - '.github/workflows/fix-praveentthen-spelling.yml'
 
 permissions:
   contents: write
@@ -11,12 +17,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Replace misspellings in text files
+      - name: Replace visible misspellings in site files
         run: |
           python - <<'PY'
           from pathlib import Path
 
-          exts = {'.html','.js','.css','.md','.json','.txt','.yml','.yaml'}
+          targets = [
+              Path('index.html'),
+              Path('archive.html'),
+              Path('assets/js/archive.js'),
+          ]
           replacements = {
               'Praveenthen': 'Praveentthen',
               'PRAVEENTHEN': 'PRAVEENTTHEN',
@@ -25,15 +35,10 @@ jobs:
           }
 
           changed = []
-          for p in Path('.').rglob('*'):
-              if not p.is_file() or p.suffix.lower() not in exts:
+          for p in targets:
+              if not p.exists():
                   continue
-              if '.git' in p.parts:
-                  continue
-              try:
-                  text = p.read_text(encoding='utf-8')
-              except UnicodeDecodeError:
-                  continue
+              text = p.read_text(encoding='utf-8')
               new = text
               for old, correct in replacements.items():
                   new = new.replace(old, correct)
@@ -49,7 +54,7 @@ jobs:
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add -A
+          git add index.html archive.html assets/js/archive.js
           if git diff --cached --quiet; then
             echo "No spelling changes needed"
           else
