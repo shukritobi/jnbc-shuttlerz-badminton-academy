@@ -6,7 +6,6 @@ on:
       - 'index.html'
       - 'archive.html'
       - 'assets/js/**'
-      - 'README.md'
       - '.github/workflows/fix-praveentthen-spelling.yml'
 
 permissions:
@@ -17,22 +16,21 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Replace visible misspellings in site files
+      - name: Correct visible name variants
         run: |
           python - <<'PY'
           from pathlib import Path
+          import re
 
-          targets = [
-              Path('index.html'),
-              Path('archive.html'),
-              Path('assets/js/archive.js'),
+          targets = [Path('index.html'), Path('archive.html'), Path('assets/js/archive.js')]
+          patterns = [
+              (r'\bPraveentthentthen\b', 'Praveentthen'),
+              (r'\bPraveenthen\b', 'Praveentthen'),
+              (r'\bPraveen\b', 'Praveentthen'),
+              (r'\bPRAVEENTTHENTTHEN\b', 'PRAVEENTTHEN'),
+              (r'\bPRAVEENTHEN\b', 'PRAVEENTTHEN'),
+              (r'\bPRAVEEN\b', 'PRAVEENTTHEN'),
           ]
-          replacements = {
-              'Praveenthen': 'Praveentthen',
-              'PRAVEENTHEN': 'PRAVEENTTHEN',
-              'Praveen': 'Praveentthen',
-              'PRAVEEN': 'PRAVEENTTHEN',
-          }
 
           changed = []
           for p in targets:
@@ -40,8 +38,8 @@ jobs:
                   continue
               text = p.read_text(encoding='utf-8')
               new = text
-              for old, correct in replacements.items():
-                  new = new.replace(old, correct)
+              for pattern, replacement in patterns:
+                  new = re.sub(pattern, replacement, new)
               if new != text:
                   p.write_text(new, encoding='utf-8')
                   changed.append(str(p))
@@ -58,6 +56,6 @@ jobs:
           if git diff --cached --quiet; then
             echo "No spelling changes needed"
           else
-            git commit -m "Correct Praveentthen spelling site-wide"
+            git commit -m "Normalize Praveentthen spelling site-wide"
             git push
           fi
