@@ -1,0 +1,37 @@
+name: Add Muniandy 2026 archive achievement
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-muniandy-2026-achievement.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Add achievement to archive data
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p = Path('assets/js/archive.js')
+          text = p.read_text(encoding='utf-8')
+          if 'muniandy-selangor-indian-open-2026' not in text:
+              item = '{"id":"muniandy-selangor-indian-open-2026","year":2026,"person":"Tn. Muniandy","category":"achievement","title":"2nd Selangor Indian Open Badminton Tournament 2026","subtitle":"Champion","image":"assets/images/archive/selangor-indian-open-champion.webp","note":"Tn. Muniandy — Champion of the 2nd Selangor Indian Open Badminton Tournament 2026, organised by Kelab Sukan Kota Kemuning."},'
+              text = text.replace('const archiveItems = [', 'const archiveItems = [' + item, 1)
+              p.write_text(text, encoding='utf-8')
+          PY
+      - name: Commit changes
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add assets/js/archive.js
+          if git diff --cached --quiet; then
+            echo "No changes"
+          else
+            git commit -m "Add Tn. Muniandy 2026 Selangor Indian Open championship"
+            git push
+          fi
