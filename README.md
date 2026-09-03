@@ -9,7 +9,7 @@ https://shukritobi.github.io/jnbc-shuttlerz-badminton-academy/
 ## Included
 
 - Coaching programme overview
-- Coach profile
+- Coach profiles
 - Beginner and intermediate training journey
 - Official Instagram embeds
 - WhatsApp enquiry form
