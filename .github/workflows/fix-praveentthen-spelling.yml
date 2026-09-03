@@ -1,5 +1,6 @@
 name: Fix Praveentthen spelling site-wide
 
+# One-time spelling cleanup for all visible site copy.
 on:
   push:
     paths:
